@@ -10,12 +10,31 @@ import (
 	"os"
 )
 
+func findWords() string {
+	paths := []string{
+		"/usr/share/thesaurus/words.txt",
+		"/usr/local/share/thesaurus/words.txt",
+		"/usr/share/thesaurus/thesaurus.txt",
+		"/usr/local/share/thesaurus/thesaurus.txt",
+	}
+	for _, path := range paths {
+		info, err := os.Stat(path)
+		if err == nil && info.IsDir() == false {
+			return path
+		}
+	}
+	return "words.txt"
+}
+
 func main() {
-	path := flag.String("w", "words.txt", "path to thesaurus file")
+	path := flag.String("w", "", "path to thesaurus file")
 	flag.Parse()
 	if len(flag.Args()) != 1 {
 		fmt.Fprintln(os.Stderr, "usage: thesaurus -w words.txt word")
 		os.Exit(1)
+	}
+	if *path == "" {
+		*path = findWords()
 	}
 
 	f, err := os.Open(*path)
